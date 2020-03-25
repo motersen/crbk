@@ -7,7 +7,20 @@
 (setq c::*user-ld-flags* "-lssl -lcrypto -lsodium")
 (setq c::*user-cc-flags* (ext:getenv "CFLAGS"))
 
-(c:build-program "bin/crbk"
-                 :lisp-files '("bin/data-bindings.obj"
-                               "bin/data.o"
-                               "bin/crbk.obj"))
+(defvar object-files)
+(defvar output-file)
+
+(defconstant +compile-rules+
+  '(("-of" 1 (setq output-file 1))
+    ("-if" &rest (setf object-files '&rest))))
+
+(let ((ext:*lisp-init-file-list* nil))
+  (handler-case (ext:process-command-args
+                 :rules +compile-rules+
+                 :args (cddr ext:*unprocessed-ecl-command-args*))
+    (error (c)
+      (princ ext:*help-message* *error-output*)
+      (ext:quit 1))))
+
+(c:build-program output-file
+                 :lisp-files object-files)

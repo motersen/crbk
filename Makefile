@@ -15,7 +15,7 @@ env C_INCLUDE_PATH="$$C_INCLUDE_PATH:${HOME}/.linuxbrew/include:$(current_dir)" 
 endef
 
 bin/crbk: $(LISPOBJECTS) $(COBJECTS)
-	$(ENV) $(ECL) --shell main-build.lisp
+	$(ENV) $(ECL) --shell main-build.lisp -- -of $@ -if $^
 
 bin/%.obj: src/%.lisp
 	$(ENV) $(ECL) --shell compile-file.lisp -- -if $^ -of $@
