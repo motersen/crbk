@@ -1,7 +1,4 @@
-(ffi:clines "#include \"src/data.h\""
-            "#include <sodium.h>")
-
-(ffi:def-function ("sodium_init" sodium-init) () :returning :int)
+(ffi:clines "#include \"src/data.h\"")
 
 (defun randombytes-vec (vec)
   (ffi:c-progn (vec)
