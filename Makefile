@@ -14,6 +14,10 @@ env C_INCLUDE_PATH="$$C_INCLUDE_PATH:${HOME}/.linuxbrew/include:$(current_dir)" 
 	CFLAGS="$(CFLAGS)"
 endef
 
+bin: FORCE
+	mkdir -p bin
+	make bin/crbk
+
 bin/crbk: $(LISPOBJECTS) $(COBJECTS)
 	$(ENV) $(ECL) --shell main-build.lisp -- -of $@ -if $^
 
@@ -25,3 +29,5 @@ bin/%.o: src/%.c
 
 clean:
 	rm -f $(COBJECTS) $(LISPOBJECTS)
+
+FORCE: ;
