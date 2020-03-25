@@ -21,7 +21,7 @@ bin/%.o: src/%.c
 	gcc $(CFLAGS) -c -o $@ $^
 
 clean:
-	rm bin/*
+	rm bin/*.o
 
 testenv:
 	@echo $(ENV)
