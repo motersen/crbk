@@ -8,6 +8,6 @@
 (setq c::*user-cc-flags* (ext:getenv "CFLAGS"))
 
 (c:build-program "bin/crbk"
-                 :lisp-files '("bin/data-bindings.o"
+                 :lisp-files '("bin/data-bindings.obj"
                                "bin/data.o"
-                               "bin/crbk.o"))
+                               "bin/crbk.obj"))
