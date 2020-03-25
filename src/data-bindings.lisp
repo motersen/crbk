@@ -11,7 +11,4 @@
             "#include <openssl/bio.h>")
 
 (defun vector->b64-string (vec)
-  (let ((b64str))
-    (ffi:c-progn (vec b64str)
-                 "#1 = vec_b64enc(#0);")
-    b64str))
+  (ffi:c-inline (vec) (:object) :object "vec_b64enc(#0)" :one-liner t))
