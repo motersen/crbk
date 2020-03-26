@@ -1,6 +1,14 @@
 (ffi:clines "#include <stdio.h>"
             "#include <ecl/ecl.h>")
 
+(defvar *stdin* (ffi:c-inline () () :pointer-void "stdin" :one-liner t))
+(defvar *stdout* (ffi:c-inline () () :pointer-void "stdout" :one-liner t))
+(defvar *stderr* (ffi:c-inline () () :pointer-void "stderr" :one-liner t))
+
+(defun stdin () *stdin*)
+(defun stdout () *stdout*)
+(defun stderr () *stderr*)
+
 (defun eof-p (file-pointer)
   (let ((eof (ffi:c-inline (file-pointer) (:pointer-void) :int "feof(#0)"
                            :one-liner t)))
