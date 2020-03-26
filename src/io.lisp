@@ -8,5 +8,5 @@
 
 (defun fread (vec file-pointer)
   (ffi:c-inline (vec file-pointer) (:object :pointer-void) :int
-                "fread(#0->vector.self.b8, 1, #0->vector.fillp, #1)"
+                "fread(#0->vector.self.b8, #0->vector.fillp, 1, #1)"
                 :one-liner t))
