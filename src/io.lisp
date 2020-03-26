@@ -35,3 +35,8 @@
          *stderr*)
         (t (ffi:c-inline (stream) (:object) :pointer-void
                          "#0->stream.file.stream" :one-liner t))))
+
+(defun fgets (length)
+    (ffi:c-inline (length) (:int) :cstring "
+char in[#0];
+@(return) = fgets(in, sizeof in, stdin);"))

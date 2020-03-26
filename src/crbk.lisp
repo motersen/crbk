@@ -1,8 +1,3 @@
-(defun fgets ()
-    (ffi:c-inline () () :cstring "
-char in[32];
-@(return) = fgets(in, 32, stdin);"))
-
 (let ((v (make-array 16 :element-type '(unsigned-byte 8)
                      :initial-element 0)))
   (if (< (sodium-init) 0)
