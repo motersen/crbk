@@ -1,4 +1,5 @@
-(ffi:clines "#include <sodium.h>")
+(ffi:clines "#include <ecl/ecl.h>"
+            "#include <sodium.h>")
 
 (ffi:def-function ("sodium_init" sodium-init) () :returning :int)
 
@@ -20,3 +21,7 @@
     (ffi:c-progn (key) "
 crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
     key))
+
+(defun randombytes-vec (vec)
+  (ffi:c-inline (vec) (:object) :void
+                "randombytes_buf(#0->vector.self.b8, #0->vector.fillp);"))

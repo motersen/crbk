@@ -1,12 +1,4 @@
 #include <ecl/ecl.h>
-#include <sodium.h>
-
-void randombytes_vec(cl_object vec)
-{
-	unsigned char *data = vec->vector.self.b8;
-	randombytes_buf(data, vec->vector.fillp);
-}
-
 #include <string.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>

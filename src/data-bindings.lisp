@@ -1,9 +1,5 @@
 (ffi:clines "#include \"src/data.h\"")
 
-(defun randombytes-vec (vec)
-  (ffi:c-progn (vec)
-               "randombytes_vec(#0);"))
-
 (ffi:clines "#include <string.h>"
             "#include <openssl/bio.h>")
 
