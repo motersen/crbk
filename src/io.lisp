@@ -9,7 +9,7 @@
 (defun stdout () *stdout*)
 (defun stderr () *stderr*)
 
-(defun eof-p (file-pointer)
+(defun feof-p (file-pointer)
   (let ((eof (ffi:c-inline (file-pointer) (:pointer-void) :int "feof(#0)"
                            :one-liner t)))
     (not (= 0 eof))))
