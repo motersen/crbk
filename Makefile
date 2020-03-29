@@ -5,7 +5,7 @@ CFLAGS=-Ofast
 LISPFILES := data-bindings io sodium crbk
 LISPOBJECTS := $(addprefix bin/, $(LISPFILES:=.obj))
 
-CFILES := data
+CFILES := data sodium
 COBJECTS := $(addprefix bin/, $(CFILES:=.o))
 
 define ENV
