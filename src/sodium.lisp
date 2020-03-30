@@ -1,3 +1,8 @@
+(eval-when (:compile-toplevel)
+  (let ((directory (pathname-directory *compile-file-truename*)))
+    (load (make-pathname :directory directory
+                         :name "defun-c-value"))))
+
 (ffi:clines "#include <ecl/ecl.h>"
             "#include <sodium.h>"
             "#include \"src/sodium.h\"")
@@ -10,17 +15,14 @@
   (nonce (:array :unsigned-char 12))
   (pad (:array :unsigned-char 8)))
 
-(defun crypto-secretstream-keybytes ()
-  (ffi:c-inline () () :int "crypto_secretstream_xchacha20poly1305_KEYBYTES"
-                :one-liner t))
+(defun-c-value crypto-secretstream-keybytes
+    :int "crypto_secretstream_xchacha20poly1305_KEYBYTES")
 
-(defun crypto-secretstream-abytes ()
-  (ffi:c-inline () () :int "crypto_secretstream_xchacha20poly1305_ABYTES"
-                :one-liner t))
+(defun-c-value crypto-secretstream-abytes
+    :int "crypto_secretstream_xchacha20poly1305_ABYTES")
 
-(defun crypto-secretstream-headerbytes ()
-  (ffi:c-inline () () :int "crypto_secretstream_xchacha20poly1305_HEADERBYTES"
-                :one-liner t))
+(defun-c-value crypto-secretstream-headerbytes
+    :int "crypto_secretstream_xchacha20poly1305_HEADERBYTES")
 
 (defun crypto-secretstream-keygen ()
   (let ((key (make-array (crypto-secretstream-keybytes)
