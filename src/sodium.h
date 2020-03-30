@@ -9,4 +9,9 @@ int
 crypto_secretstream_init_push
 (cl_object state, cl_object header, cl_object key);
 
+unsigned long long crypto_secretstream_push
+(cl_object state, cl_object msg, unsigned long long mlen,
+ cl_object ciphertext, cl_object adata, unsigned long long alength,
+ unsigned char tag);
+
 #endif
