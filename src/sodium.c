@@ -1,7 +1,6 @@
 #include <ecl/ecl.h>
 #include <sodium.h>
-
-typedef crypto_secretstream_xchacha20poly1305_state secretstream_state;
+#include "sodium.h"
 
 int
 crypto_secretstream_init_push (cl_object state, cl_object header, cl_object key)
