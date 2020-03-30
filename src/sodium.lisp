@@ -24,6 +24,9 @@
 (defun-c-value crypto-secretstream-headerbytes
     :int "crypto_secretstream_xchacha20poly1305_HEADERBYTES")
 
+(defun-c-value crypto-secretstream-tag-final
+    :unsigned-char "crypto_secretstream_xchacha20poly1305_TAG_FINAL")
+
 (defun crypto-secretstream-keygen ()
   (let ((key (make-array (crypto-secretstream-keybytes)
                          :element-type '(unsigned-byte 8))))
