@@ -30,6 +30,11 @@
                 "fwrite(#0->vector.self.b8, #0->vector.fillp, 1, #1)"
                 :one-liner t))
 
+(defun fflush (file-pointer)
+  (ffi:c-inline (file-pointer) (:pointer-void) :int
+                "fflush(#0)"
+                :one-liner t))
+
 (defun stream-file-pointer (stream)
   "Return FILE* pointer for stream"
   (cond ((eq stream *standard-input*)
