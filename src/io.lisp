@@ -14,7 +14,7 @@
                            :one-liner t)))
     (not (= 0 eof))))
 
-(defun fread (vec file-pointer &optional size (count 1))
+(defun fread (vec file-pointer &key size (count 1))
   (let ((size (or size
                   (if (array-has-fill-pointer-p vec)
                       (fill-pointer vec)
