@@ -14,12 +14,17 @@
                            :one-liner t)))
     (not (= 0 eof))))
 
-;; fread+fwrite: add length parameter, keep full vector as default
-(defun fread (vec file-pointer)
-  (ffi:c-inline (vec file-pointer) (:object :pointer-void) :int
-                "fread(#0->vector.self.b8, #0->vector.fillp, 1, #1)"
-                :one-liner t))
+(defun fread (vec file-pointer &optional size (count 1))
+  (let ((size (or size
+                  (if (array-has-fill-pointer-p vec)
+                      (fill-pointer vec)
+                      (length vec)))))
+    (ffi:c-inline (vec size count file-pointer)
+                  (:object :int :int :pointer-void) :int
+                  "fread(#0->vector.self.b8, #1, #2, #3)"
+                  :one-liner t)))
 
+;; add size parameter, keep full vector as default
 (defun fwrite (vec file-pointer)
   (ffi:c-inline (vec file-pointer) (:object :pointer-void) :int
                 "fwrite(#0->vector.self.b8, #0->vector.fillp, 1, #1)"
