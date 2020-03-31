@@ -27,6 +27,9 @@
 (defun-c-value crypto-secretstream-tag-final
     :unsigned-char "crypto_secretstream_xchacha20poly1305_TAG_FINAL")
 
+(defun-c-value crypto-secretstream-tag-message
+    :unsigned-char "crypto_secretstream_xchacha20poly1305_TAG_MESSAGE")
+
 (defun crypto-secretstream-keygen ()
   (let ((key (make-array (crypto-secretstream-keybytes)
                          :element-type '(unsigned-byte 8))))
@@ -42,7 +45,8 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
 (ffi:def-foreign-type :unsigned-long-long '(integer 0 ffi:c-ulong-long-max))
 
 (defun crypto-secretstream-push
-    (state msg ciphertext &key msglength (tag 0) adata alength)
+    (state msg ciphertext
+     &key msglength (tag (crypto-secretstream-tag-message)) adata alength)
   (let ((msglength (or msglength
                        (length msg)))
         (alength (if adata
