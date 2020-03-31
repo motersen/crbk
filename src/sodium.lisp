@@ -63,3 +63,33 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
 (defun randombytes-vec (vec)
   (ffi:c-inline (vec) (:object) :void
                 "randombytes_buf(#0->vector.self.b8, #0->vector.fillp);"))
+
+(defvar *chunk-size* 4096)
+
+(defun encrypt-secretstream (key input-stream output-stream)
+  (ffi:with-foreign-object (state :crypto-secretstream-state)
+    (loop
+       with ciphertext = (make-array (+ *chunk-size* (crypto-secretstream-abytes))
+                                     :element-type '(unsigned-byte 8))
+       with message = (make-array *chunk-size*
+                                  :element-type '(unsigned-byte 8)
+                                  :displaced-to ciphertext
+                                  :displaced-index-offset
+                                  (crypto-secretstream-abytes))
+       and header = (make-array (crypto-secretstream-headerbytes)
+                                :element-type '(unsigned-byte 8))
+       and input = (stream-file-pointer input-stream)
+       and output = (stream-file-pointer output-stream)
+       initially
+         (crypto-secretstream-init-push state header key)
+         (fwrite header output)
+       for length = (fread message input :size 1 :count (length message))
+       for eof = (feof-p input)
+       for tag = (if eof
+                     (crypto-secretstream-tag-final)
+                     (crypto-secretstream-tag-message))
+       do
+         (crypto-secretstream-push state message ciphertext
+                                   :msglength length :tag tag)
+         (fwrite ciphertext output)
+       until eof)))
