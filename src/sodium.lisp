@@ -50,7 +50,8 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
   (let ((msglength (or msglength
                        (length msg)))
         (alength (if adata
-                     (length adata)
+                     (or alength
+                         (length adata))
                      0)))
     (ffi:c-inline (state msg msglength ciphertext
                          adata alength tag)
