@@ -16,9 +16,7 @@
 
 (defun fread (vec file-pointer &key size (count 1))
   (let ((size (or size
-                  (if (array-has-fill-pointer-p vec)
-                      (fill-pointer vec)
-                      (length vec)))))
+                  (length vec))))
     (ffi:c-inline (vec size count file-pointer)
                   (:object :int :int :pointer-void) :int
                   "fread(#0->vector.self.b8, #1, #2, #3)"
