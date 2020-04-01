@@ -23,10 +23,13 @@
                   :one-liner t)))
 
 ;; add size parameter, keep full vector as default
-(defun fwrite (vec file-pointer)
-  (ffi:c-inline (vec file-pointer) (:object :pointer-void) :int
-                "fwrite(#0->vector.self.b8, #0->vector.fillp, 1, #1)"
-                :one-liner t))
+(defun fwrite (vec file-pointer &key size (count 1))
+  (let ((size (or size
+                  (length vec))))
+    (ffi:c-inline (vec size count file-pointer)
+                  (:object :int :int :pointer-void) :int
+                 "fwrite(#0->vector.self.b8, #1, #2, #3)"
+                 :one-liner t)))
 
 (defun fflush (file-pointer)
   (ffi:c-inline (file-pointer) (:pointer-void) :int
