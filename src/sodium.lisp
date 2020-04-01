@@ -46,10 +46,11 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
 
 (defun crypto-secretstream-push
     (state msg ciphertext
-     &key (tag (crypto-secretstream-tag-message)) adata)
-  (let ((msglength (length msg))
+     &key message-length (tag (crypto-secretstream-tag-message)) adata)
+  (let ((message-length (or message-length
+                            (length msg)))
         (alength (length adata)))
-    (ffi:c-inline (state msg msglength ciphertext
+    (ffi:c-inline (state msg message-length ciphertext
                          adata alength tag)
                   (:object :object :unsigned-long-long :object
                            :object :unsigned-long-long :unsigned-char)
@@ -87,6 +88,6 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
                      (crypto-secretstream-tag-message))
        do
          (crypto-secretstream-push state message ciphertext
-                                   :msglength length :tag tag)
+                                   :message-length length :tag tag)
          (fwrite ciphertext output)
        until eof)))
