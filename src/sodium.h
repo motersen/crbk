@@ -14,4 +14,12 @@ unsigned long long crypto_secretstream_push
  cl_object ciphertext, cl_object adata, unsigned long long alength,
  unsigned char tag);
 
+int
+crypto_secretstream_init_pull(cl_object state, cl_object header, cl_object key);
+
+int crypto_secretstream_pull
+(cl_object state, cl_object msg, unsigned long long *mlen, unsigned char *tag,
+ cl_object ciphertext, unsigned long long clen, cl_object adata,
+ unsigned long long alength);
+
 #endif

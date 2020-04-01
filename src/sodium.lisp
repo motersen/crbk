@@ -58,6 +58,27 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
                   "crypto_secretstream_push(#0, #1, #2, #3, #4, #5, #6)"
                   :one-liner t)))
 
+(defun crypto-secretstream-init-pull (state header key)
+  (ffi:c-inline (state header key) (:object :object :object) :int
+                "crypto_secretstream_init_pull(#0, #1, #2)"
+                :one-liner t))
+
+(defun crypto-secretstream-pull
+    (state msg ciphertext &key ciphertext-length adata)
+  (let ((ciphertext-length (or ciphertext-length
+                               (length ciphertext)))
+        (adata-length (length adata)))
+    (ffi:c-inline (state msg ciphertext ciphertext-length
+                         adata adata-length)
+                  (:object :object :object :unsigned-long-long
+                           :object :unsigned-long-long)
+                  (values :int :unsigned-byte :unsigned-long-long) "
+unsigned char tag;
+unsigned long long msg_length = 0;
+@(return 0) = crypto_secretstream_pull(#0, #1, &msg_length, &tag, #2, #3, #4, #5);
+@(return 1) = tag;
+@(return 2) = msg_length;")))
+
 (defun randombytes-vec (vec)
   (ffi:c-inline (vec) (:object) :void
                 "randombytes_buf(#0->vector.self.b8, #0->vector.fillp);"))
