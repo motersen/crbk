@@ -107,8 +107,9 @@ unsigned long long msg_length = 0;
        for tag = (if eof
                      (crypto-secretstream-tag-final)
                      (crypto-secretstream-tag-message))
+       for ciphertext-length = (crypto-secretstream-push
+                                state message ciphertext
+                                :tag tag :message-length length)
        do
-         (crypto-secretstream-push state message ciphertext
-                                   :message-length length :tag tag)
-         (fwrite ciphertext output)
+         (fwrite ciphertext output :size ciphertext-length)
        until eof)))
