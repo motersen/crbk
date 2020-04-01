@@ -113,3 +113,34 @@ unsigned long long msg_length = 0;
        do
          (fwrite ciphertext output :size ciphertext-length)
        until eof)))
+
+(defun decrypt-secretstream (key input-stream output-stream)
+  (ffi:with-foreign-object (state :crypto-secretstream-state)
+    (loop
+       with ciphertext = (make-array (+ *chunk-size* (crypto-secretstream-abytes))
+                                     :element-type '(unsigned-byte 8))
+       and message = (make-array *chunk-size*
+                                 :element-type '(unsigned-byte 8))
+       and header = (make-array (crypto-secretstream-headerbytes)
+                                :element-type '(unsigned-byte 8))
+       and input = (stream-file-pointer input-stream)
+       and output = (stream-file-pointer output-stream)
+       initially
+         (fread header input)
+         (if (not (>= (crypto-secretstream-init-pull state header key) 0))
+             (error "Invalid ciphertext header"))
+       for ciphertext-length = (fread ciphertext input
+                                      :size 1 :count (length ciphertext))
+       for (exit tag message-length) = (multiple-value-list
+                                        (crypto-secretstream-pull
+                                         state message ciphertext
+                                         :ciphertext-length ciphertext-length))
+       and eof = (feof-p input)
+       do
+         (if (not (= exit 0))
+             (error "Corrupted chunk"))
+         (if (and (= tag (crypto-secretstream-tag-final))
+                  (not eof))
+             (error "Ciphertext ended too soon"))
+         (fwrite message output :size message-length)
+       until eof)))
