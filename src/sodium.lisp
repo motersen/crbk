@@ -117,14 +117,15 @@ unsigned long long msg_length = 0;
        initially
          (crypto-secretstream-init-push state header key)
          (fwrite header output)
-       for length = (fread message input :size 1 :count (length message))
+       for message-length = (fread message input
+                                   :size 1 :count (length message))
        for eof = (feof-p input)
        for tag = (if eof
                      (crypto-secretstream-tag-final)
                      (crypto-secretstream-tag-message))
        for ciphertext-length = (crypto-secretstream-push
                                 state message ciphertext
-                                :tag tag :message-length length)
+                                :tag tag :message-length message-length)
        do
          (fwrite ciphertext output :size ciphertext-length)
        until eof)))
