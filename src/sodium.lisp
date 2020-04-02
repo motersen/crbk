@@ -83,6 +83,21 @@ unsigned long long msg_length = 0;
   (ffi:c-inline (vec) (:object) :void
                 "randombytes_buf(#0->vector.self.b8, #0->vector.fillp);"))
 
+(defun write-key-to-file (filespec key)
+  (with-open-file (keyfile filespec
+                           :direction :output
+                           :element-type '(unsigned-byte 8))
+    (fwrite key (stream-file-pointer keyfile))))
+
+(defun read-key-from-file (filespec)
+  (let ((key (make-array (crypto-secretstream-keybytes)
+                         :element-type '(unsigned-byte 8))))
+    (with-open-file (keyfile filespec
+                             :direction :input
+                             :element-type '(unsigned-byte 8))
+      (fread key (stream-file-pointer keyfile))
+      key)))
+
 (defvar *chunk-size* 4096)
 
 (defun encrypt-secretstream (key input-stream output-stream)
