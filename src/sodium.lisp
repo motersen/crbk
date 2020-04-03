@@ -158,4 +158,6 @@ unsigned long long msg_length = 0;
                   (not eof))
              (error "Ciphertext ended too soon"))
          (fwrite message output :size message-length)
+       finally
+         (randombytes-vec message)
        until eof)))
