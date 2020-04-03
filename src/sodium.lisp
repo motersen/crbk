@@ -100,63 +100,61 @@ unsigned long long msg_length = 0;
 
 (defvar *chunk-size* 4096)
 
-(defun encrypt-secretstream (key input-stream output-stream)
-  (ffi:with-foreign-object (state :crypto-secretstream-state)
-    (let ((ciphertext (make-array (+ *chunk-size* (crypto-secretstream-abytes))
-                                  :element-type '(unsigned-byte 8)))
-          (message (make-array *chunk-size*
-                               :element-type '(unsigned-byte 8)))
-          (header (make-array (crypto-secretstream-headerbytes)
-                              :element-type '(unsigned-byte 8)))
-          (input (stream-file-pointer input-stream))
-          (output (stream-file-pointer output-stream)))
-      (crypto-secretstream-init-push state header key)
-      (fwrite header output)
-      (labels ((encrypt-stream ()
-                 (let* ((message-length (fread message input
-                                              :size 1 :count (length message)))
-                        (eof (feof-p input))
-                        (tag (if eof
-                                 (crypto-secretstream-tag-final)
-                                 (crypto-secretstream-tag-message)))
-                        (ciphertext-length (crypto-secretstream-push
-                                state message ciphertext
-                                :tag tag :message-length message-length)))
-                   (fwrite ciphertext output :size ciphertext-length)
-                   (if (not eof)
-                       (encrypt-stream)
-                       (randombytes-vec message)))))
-        (encrypt-stream)))))
+(macrolet ((crypto-setup (&body body)
+             `(ffi:with-foreign-object (state :crypto-secretstream-state)
+                (let ((ciphertext (make-array (+ *chunk-size*
+                                                 (crypto-secretstream-abytes))
+                                              :element-type '(unsigned-byte 8)))
+                      (message (make-array *chunk-size*
+                                           :element-type '(unsigned-byte 8)))
+                      (header (make-array (crypto-secretstream-headerbytes)
+                                          :element-type '(unsigned-byte 8)))
+                      (input (stream-file-pointer input-stream))
+                      (output (stream-file-pointer output-stream)))
+                  ,@body))))
 
-(defun decrypt-secretstream (key input-stream output-stream)
-  (ffi:with-foreign-object (state :crypto-secretstream-state)
-    (let ((ciphertext (make-array (+ *chunk-size* (crypto-secretstream-abytes))
-                                  :element-type '(unsigned-byte 8)))
-          (message (make-array *chunk-size*
-                               :element-type '(unsigned-byte 8)))
-          (header (make-array (crypto-secretstream-headerbytes)
-                              :element-type '(unsigned-byte 8)))
-          (input (stream-file-pointer input-stream))
-          (output (stream-file-pointer output-stream)))
-      (fread header input)
-      (if (not (>= (crypto-secretstream-init-pull state header key) 0))
-          (error "Invalid ciphertext header"))
-      (labels ((decrypt-stream ()
-                 (let* ((ciphertext-length (fread ciphertext input
-                                                  :size 1
-                                                  :count (length ciphertext)))
-                        (eof (feof-p input)))
-                   (multiple-value-bind (exit tag message-length)
-                       (crypto-secretstream-pull
-                        state message ciphertext
-                        :ciphertext-length ciphertext-length)
-                     (if (not (= exit 0))
-                         (error "Corrupted chunk"))
-                     (if (and (= tag (crypto-secretstream-tag-final))
-                              (not eof))
-                         (error "Ciphertext ended too soon"))
-                     (fwrite message output :size message-length)
-                     (if (not eof)
-                         (decrypt-stream)
-                         (randombytes-vec message))))))
-        (decrypt-stream)))))
+  (defun encrypt-secretstream (key input-stream output-stream)
+    (crypto-setup
+     (crypto-secretstream-init-push state header key)
+     (fwrite header output)
+     (labels ((encrypt-stream ()
+                (let* ((message-length (fread message input
+                                              :size 1 :count (length message)))
+                       (eof (feof-p input))
+                       (tag (if eof
+                                (crypto-secretstream-tag-final)
+                                (crypto-secretstream-tag-message)))
+                       (ciphertext-length (crypto-secretstream-push
+                                           state message ciphertext
+                                           :message-length message-length
+                                           :tag tag)))
+                  (fwrite ciphertext output :size ciphertext-length)
+                  (if (not eof)
+                      (encrypt-stream)
+                      (randombytes-vec message)))))
+       (encrypt-stream))))
+
+  (defun decrypt-secretstream (key input-stream output-stream)
+    (crypto-setup
+     (fread header input)
+     (if (not (>= (crypto-secretstream-init-pull state header key) 0))
+         (error "Invalid ciphertext header"))
+     (labels ((decrypt-stream ()
+                (let* ((ciphertext-length (fread ciphertext input
+                                                 :size 1
+                                                 :count (length ciphertext)))
+                       (eof (feof-p input)))
+                  (multiple-value-bind (exit tag message-length)
+                      (crypto-secretstream-pull
+                       state message ciphertext
+                       :ciphertext-length ciphertext-length)
+                    (if (not (= exit 0))
+                        (error "Corrupted chunk"))
+                    (if (and (= tag (crypto-secretstream-tag-final))
+                             (not eof))
+                        (error "Ciphertext ended too soon"))
+                    (fwrite message output :size message-length)
+                    (if (not eof)
+                        (decrypt-stream)
+                        (randombytes-vec message))))))
+       (decrypt-stream)))))
