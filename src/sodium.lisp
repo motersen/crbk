@@ -106,10 +106,7 @@ unsigned long long msg_length = 0;
        with ciphertext = (make-array (+ *chunk-size* (crypto-secretstream-abytes))
                                      :element-type '(unsigned-byte 8))
        with message = (make-array *chunk-size*
-                                  :element-type '(unsigned-byte 8)
-                                  :displaced-to ciphertext
-                                  :displaced-index-offset
-                                  (crypto-secretstream-abytes))
+                                  :element-type '(unsigned-byte 8))
        and header = (make-array (crypto-secretstream-headerbytes)
                                 :element-type '(unsigned-byte 8))
        and input = (stream-file-pointer input-stream)
@@ -128,6 +125,8 @@ unsigned long long msg_length = 0;
                                 :tag tag :message-length message-length)
        do
          (fwrite ciphertext output :size ciphertext-length)
+       finally
+         (randombytes-vec message)
        until eof)))
 
 (defun decrypt-secretstream (key input-stream output-stream)
