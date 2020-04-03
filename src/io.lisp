@@ -22,6 +22,11 @@
                   "fread(#0->vector.self.b8, #1, #2, #3)"
                   :one-liner t)))
 
+(defun fread-bytes (vec file-pointer &key length)
+  "Attempt to fill vec with data from file-pointer, return number of bytes read"
+  (fread vec file-pointer :size 1 :count (or length
+                                             (length vec))))
+
 ;; add size parameter, keep full vector as default
 (defun fwrite (vec file-pointer &key size (count 1))
   (let ((size (or size

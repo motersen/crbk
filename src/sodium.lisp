@@ -118,8 +118,7 @@ unsigned long long msg_length = 0;
      (crypto-secretstream-init-push state header key)
      (fwrite header output)
      (labels ((encrypt-stream ()
-                (let* ((message-length (fread message input
-                                              :size 1 :count (length message)))
+                (let* ((message-length (fread-bytes message input))
                        (eof (feof-p input))
                        (tag (if eof
                                 (crypto-secretstream-tag-final)
@@ -140,9 +139,7 @@ unsigned long long msg_length = 0;
      (if (not (>= (crypto-secretstream-init-pull state header key) 0))
          (error "Invalid ciphertext header"))
      (labels ((decrypt-stream ()
-                (let* ((ciphertext-length (fread ciphertext input
-                                                 :size 1
-                                                 :count (length ciphertext)))
+                (let* ((ciphertext-length (fread-bytes ciphertext input))
                        (eof (feof-p input)))
                   (multiple-value-bind (exit tag message-length)
                       (crypto-secretstream-pull
