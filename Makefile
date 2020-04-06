@@ -2,7 +2,7 @@ ECL=ecl --norc
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 CFLAGS=-Ofast
 
-LISPFILES := data-bindings io sodium crbk
+LISPFILES := data-bindings io sodium conditions crbk
 LISPOBJECTS := $(addprefix bin/, $(LISPFILES:=.obj))
 
 CFILES := data sodium

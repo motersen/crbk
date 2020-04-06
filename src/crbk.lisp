@@ -49,6 +49,8 @@
   (terpri *error-output*)
   (ext:quit 1))
 
-(funcall *operation*)
+(handler-bind ((size-exceeds-sequence-length-error
+                #'cap-size-to-sequence-length))
+  (funcall *operation*))
 
 (ext:quit)

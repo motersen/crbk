@@ -1,7 +1,11 @@
 (eval-when (:compile-toplevel)
   (let ((directory (pathname-directory *compile-file-truename*)))
     (load (make-pathname :directory directory
-                         :name "defun-c-value"))))
+                         :name "defun-c-value")
+          :print t)
+    (load (make-pathname :directory directory
+                         :name "assert-size-not-exceeds-sequence-length")
+          :print t)))
 
 (ffi:clines "#include <ecl/ecl.h>"
             "#include <sodium.h>"
@@ -47,7 +51,8 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
 (defun crypto-secretstream-push
     (state msg ciphertext
      &key message-length (tag (crypto-secretstream-tag-message)) adata)
-  (let ((message-length (or message-length
+  (let ((message-length (or (and (integerp message-length)
+                                 (assert/length msg message-length))
                             (length msg)))
         (alength (length adata)))
     (ffi:c-inline (state msg message-length ciphertext
@@ -65,7 +70,9 @@ crypto_secretstream_xchacha20poly1305_keygen(#0->vector.self.b8);")
 
 (defun crypto-secretstream-pull
     (state msg ciphertext &key ciphertext-length adata)
-  (let ((ciphertext-length (or ciphertext-length
+  (let ((ciphertext-length (or (and (integerp ciphertext-length)
+                                    (assert/length ciphertext
+                                                         ciphertext-length))
                                (length ciphertext)))
         (adata-length (length adata)))
     (ffi:c-inline (state msg ciphertext ciphertext-length

@@ -1,3 +1,9 @@
+(eval-when (:compile-toplevel)
+  (let ((directory (pathname-directory *compile-file-truename*)))
+    (load (make-pathname :directory directory
+                         :name "assert-size-not-exceeds-sequence-length")
+          :print t)))
+
 (ffi:clines "#include <stdio.h>"
             "#include <ecl/ecl.h>")
 
@@ -17,6 +23,7 @@
 (defun fread (vec file-pointer &key size (count 1))
   (let ((size (or size
                   (length vec))))
+    (assert/length vec (* size count))
     (ffi:c-inline (vec size count file-pointer)
                   (:object :int :int :pointer-void) :int
                   "fread(#0->vector.self.b8, #1, #2, #3)"
@@ -31,6 +38,7 @@
 (defun fwrite (vec file-pointer &key size (count 1))
   (let ((size (or size
                   (length vec))))
+    (assert/length vec (* size count))
     (ffi:c-inline (vec size count file-pointer)
                   (:object :int :int :pointer-void) :int
                  "fwrite(#0->vector.self.b8, #1, #2, #3)"
