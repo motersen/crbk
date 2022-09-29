@@ -1,29 +1,71 @@
+(defun ensure-stream (pathname-or-stream &key direction type
+                      &aux (test (ecase direction
+                                   (:input #'input-stream-p)
+                                   (:output #'output-stream-p))))
+  (etypecase pathname-or-stream
+    (stream
+     (assert (funcall test pathname-or-stream))
+     pathname-or-stream)
+    (pathname
+     (ecase direction
+       (:input (assert (probe-file pathname-or-stream)))
+       (:output (ensure-directories-exist pathname-or-stream)))
+     (apply #'open pathname-or-stream
+            `(:direction ,direction ,@(if (eq type :cipher)
+                                          '(:element-type (unsigned-byte 8))))))))
+
+(defun encrypt (keyfile &key (plain *standard-input*)
+                          (cipher *standard-output*))
+  "Encrypts data from PLAIN with a randomly generated key and writes it to
+CIPHER. Then writes the key to the file named by filespec KEYFILE. PLAIN and
+CIPHER can be streams or pathnames."
+  (let ((plain-stream (etypecase plain
+                     (stream
+                      (assert (input-stream-p plain))
+                      plain)
+                     (pathname
+                      (assert (probe-file plain))
+                      (open plain :direction :input))))
+        (cipher-stream (etypecase cipher
+                      (stream
+                      (assert (output-stream-p cipher))
+                       cipher)
+                     (pathname
+                      (ensure-directories-exist cipher)
+                      (open cipher :direction :output
+                                :element-type '(unsigned-byte 8)))))
+        (key (crypto-secretstream-keygen)))
+    (unwind-protect
+         (encrypt-secretstream key plain-stream cipher-stream)
+      (unless (eq plain plain-stream)
+        (close plain-stream))
+      (unless (eq cipher cipher-stream)
+        (close cipher-stream)))
+    (write-key-to-file keyfile key)))
+
+(defun decrypt (keyfile &key (cipher *standard-input*)
+                          (plain *standard-output*))
+  (let ((key (read-key-from-file keyfile))
+        (cipher-stream (ensure-stream cipher :direction :input :type :cipher))
+        (plain-stream (ensure-stream plain :direction :output :type :plain)))
+    (unwind-protect
+         (decrypt-secretstream key cipher-stream plain-stream)
+      (unless (eq cipher cipher-stream)
+        (close cipher-stream))
+      (unless (eq plain plain-stream)
+        (close plain-stream)))))
+
 (defvar *operation* nil)
-(defvar *keyfile* nil)
+(defvar *key-file* nil)
 (defvar *ciphertext-file* nil)
-
-(defun encrypt ()
-  (let ((key (crypto-secretstream-keygen))
-        (output (open *ciphertext-file*
-                      :direction :output
-                      :element-type '(unsigned-byte 8))))
-    (encrypt-secretstream key *standard-input* output)
-    (write-key-to-file *keyfile* key)
-    (close output)))
-
-(defun decrypt ()
-  (let ((input (open *ciphertext-file*
-                     :direction :input
-                     :element-type '(unsigned-byte 8)))
-        (key (read-key-from-file *keyfile*)))
-    (decrypt-secretstream key input *standard-output*)
-    (close input)))
+(defvar *plaintext-file* nil)
 
 (defconstant +crbk-rules+
-  '((("-e" "--encrypt") 0 (setf *operation* #'encrypt))
-    (("-d" "--decrypt") 0 (setf *operation* #'decrypt))
-    (("-k" "--keyfile") 1 (setf *keyfile* 1))
-    (("-c" "--ciphertext-file") 1 (setf *ciphertext-file* 1))))
+  '((("-e" "--encrypt") 0 (setf *operation* :encrypt))
+    (("-d" "--decrypt") 0 (setf *operation* :decrypt))
+    (("-k" "--key-file") 1 (setf *key-file* 1))
+    (("-c" "--ciphertext-file") 1 (setf *ciphertext-file* (pathname 1)))
+    (("-p" "--plaintext-file") 1 (when 1 (setf *plaintext-file* (pathname 1))))))
 
 (let ((ext:*lisp-init-file-list* nil))
   (handler-case (ext:process-command-args
@@ -36,12 +78,8 @@
 (if (< (sodium-init) 0)
     (error "libsodium could not be initialized"))
 
-(unless *keyfile*
+(unless *key-file*
   (princ "No key file specified" *error-output*)
-  (terpri *error-output*)
-  (ext:quit 1))
-(unless *ciphertext-file*
-  (princ "No ciphertext file specified" *error-output*)
   (terpri *error-output*)
   (ext:quit 1))
 (unless *operation*
@@ -51,6 +89,12 @@
 
 (handler-bind ((size-exceeds-sequence-length-error
                 #'cap-size-to-sequence-length))
-  (funcall *operation*))
+  (ecase *operation*
+    (:encrypt
+     (encrypt *key-file* :plain (or *plaintext-file* *standard-input*)
+                         :cipher (or *ciphertext-file* *standard-output*)))
+    (:decrypt
+     (decrypt *key-file* :cipher (or *ciphertext-file* *standard-input*)
+                         :plain (or *plaintext-file* *standard-output*)))))
 
 (ext:quit)
