@@ -4,7 +4,7 @@
 
 (setq c::*speed* 3)
 (setq c::*space* 3)
-(setq c::*user-ld-flags* "-lssl -lcrypto -lsodium")
+(setq c::*user-ld-flags* "-lsodium")
 (setq c::*user-cc-flags* (ext:getenv "CFLAGS"))
 
 (defvar object-files)
