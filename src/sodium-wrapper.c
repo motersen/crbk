@@ -1,6 +1,6 @@
 #include <ecl/ecl.h>
 #include <sodium.h>
-#include "sodium.h"
+#include "sodium-wrapper.h"
 
 int
 crypto_secretstream_init_push(cl_object state, cl_object header, cl_object key)

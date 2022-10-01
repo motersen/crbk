@@ -1,8 +1,3 @@
-(let ((directory (pathname-directory *load-truename*)))
-  (load (make-pathname :directory directory
-                       :name "with-gensyms")
-        :print t))
-
 (defmacro assert-size-not-exceeds-sequence-length (seq size)
   (with-gensyms (sequence-expression sequence-length size-expression size-value)
     `(let ((,sequence-expression (quote ,seq))

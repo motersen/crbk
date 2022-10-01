@@ -1,15 +1,6 @@
-(eval-when (:compile-toplevel)
-  (let ((directory (pathname-directory *compile-file-truename*)))
-    (load (make-pathname :directory directory
-                         :name "defun-c-value")
-          :print t)
-    (load (make-pathname :directory directory
-                         :name "assert-size-not-exceeds-sequence-length")
-          :print t)))
-
 (ffi:clines "#include <ecl/ecl.h>"
             "#include <sodium.h>"
-            "#include \"src/sodium.h\"")
+            "#include \"sodium-wrapper.h\"")
 
 (ffi:def-function ("sodium_init" sodium-init) () :returning :int)
 

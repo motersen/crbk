@@ -67,34 +67,35 @@ CIPHER can be streams or pathnames."
     (("-c" "--ciphertext-file") 1 (setf *ciphertext-file* (pathname 1)))
     (("-p" "--plaintext-file") 1 (when 1 (setf *plaintext-file* (pathname 1))))))
 
-(let ((ext:*lisp-init-file-list* nil))
-  (handler-case (ext:process-command-args
-                 :rules +crbk-rules+
-                 :args (cdr (ext:command-args)))
-    (error (c)
-      (princ ext:*help-message* *error-output*)
-      (ext:quit 1))))
+(defun main ()
+  (let ((ext:*lisp-init-file-list* nil))
+    (handler-case (ext:process-command-args
+                   :rules +crbk-rules+
+                   :args (cdr (ext:command-args)))
+      (error (c)
+        (princ ext:*help-message* *error-output*)
+        (ext:quit 1))))
 
-(if (< (sodium-init) 0)
-    (error "libsodium could not be initialized"))
+  (if (< (sodium-init) 0)
+      (error "libsodium could not be initialized"))
 
-(unless *key-file*
-  (princ "No key file specified" *error-output*)
-  (terpri *error-output*)
-  (ext:quit 1))
-(unless *operation*
-  (princ "No operation requested" *error-output*)
-  (terpri *error-output*)
-  (ext:quit 1))
+  (unless *key-file*
+    (princ "No key file specified" *error-output*)
+    (terpri *error-output*)
+    (ext:quit 1))
+  (unless *operation*
+    (princ "No operation requested" *error-output*)
+    (terpri *error-output*)
+    (ext:quit 1))
 
-(handler-bind ((size-exceeds-sequence-length-error
-                #'cap-size-to-sequence-length))
-  (ecase *operation*
-    (:encrypt
-     (encrypt *key-file* :plain (or *plaintext-file* *standard-input*)
-                         :cipher (or *ciphertext-file* *standard-output*)))
-    (:decrypt
-     (decrypt *key-file* :cipher (or *ciphertext-file* *standard-input*)
-                         :plain (or *plaintext-file* *standard-output*)))))
+  (handler-bind ((size-exceeds-sequence-length-error
+                   #'cap-size-to-sequence-length))
+    (ecase *operation*
+      (:encrypt
+       (encrypt *key-file* :plain (or *plaintext-file* *standard-input*)
+                           :cipher (or *ciphertext-file* *standard-output*)))
+      (:decrypt
+       (decrypt *key-file* :cipher (or *ciphertext-file* *standard-input*)
+                           :plain (or *plaintext-file* *standard-output*)))))
 
-(ext:quit)
+  (ext:quit))

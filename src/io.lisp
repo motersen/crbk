@@ -1,9 +1,3 @@
-(eval-when (:compile-toplevel)
-  (let ((directory (pathname-directory *compile-file-truename*)))
-    (load (make-pathname :directory directory
-                         :name "assert-size-not-exceeds-sequence-length")
-          :print t)))
-
 (ffi:clines "#include <stdio.h>"
             "#include <ecl/ecl.h>")
 
