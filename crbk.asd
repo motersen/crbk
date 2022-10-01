@@ -34,7 +34,10 @@
             (let ((c:*user-ld-flags* "-lsodium"))
               (c:build-program (output-file o s)
 			                         :lisp-files (input-files o s)
-			                         :epilogue-code `(funcall (read-from-string ,(asdf::component-entry-point s)))))))
+			                         :epilogue-code `(funcall (read-from-string ,(asdf::component-entry-point s))))))
+  :perform (compile-bundle-op :around (o s)
+                   (let ((c:*user-ld-flags* "-lsodium"))
+                     (call-next-method))))
 
 #+ecl
 (defmethod output-files ((o compile-op) (c c-source-file))
