@@ -21,21 +21,8 @@
   "Encrypts data from PLAIN with a randomly generated key and writes it to
 CIPHER. Then writes the key to the file named by filespec KEYFILE. PLAIN and
 CIPHER can be streams or pathnames."
-  (let ((plain-stream (etypecase plain
-                     (stream
-                      (assert (input-stream-p plain))
-                      plain)
-                     (pathname
-                      (assert (probe-file plain))
-                      (open plain :direction :input))))
-        (cipher-stream (etypecase cipher
-                      (stream
-                      (assert (output-stream-p cipher))
-                       cipher)
-                     (pathname
-                      (ensure-directories-exist cipher)
-                      (open cipher :direction :output
-                                :element-type '(unsigned-byte 8)))))
+  (let ((plain-stream (ensure-stream plain :direction :input :type :plain))
+        (cipher-stream (ensure-stream cipher :direction :output :type :cipher))
         (key (crypto-secretstream-keygen)))
     (unwind-protect
          (encrypt-secretstream key plain-stream cipher-stream)
