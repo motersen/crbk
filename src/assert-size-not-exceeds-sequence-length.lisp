@@ -1,3 +1,5 @@
+(in-package #:crbk)
+
 (defmacro assert-size-not-exceeds-sequence-length (seq size)
   (with-gensyms (sequence-expression sequence-length size-expression size-value)
     `(let ((,sequence-expression (quote ,seq))

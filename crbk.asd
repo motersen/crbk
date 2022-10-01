@@ -1,6 +1,7 @@
 (defsystem "crbk"
   :serial t
-  :components ((:module "src"
+  :components ((:file "package")
+               (:module "src"
                 :components
                 ((:file "io"
                   :depends-on ("assert-size-not-exceeds-sequence-length"))
@@ -17,7 +18,7 @@
                  (:file "with-gensyms"))))
   :build-operation program-op
   :build-pathname "bin/crbk"
-  :entry-point "main"
+  :entry-point "crbk::main"
   :output-files (program-op
                  (o s)
                  (values

@@ -1,3 +1,5 @@
+(in-package #:crbk)
+
 (ffi:clines "#include <stdio.h>"
             "#include <ecl/ecl.h>")
 

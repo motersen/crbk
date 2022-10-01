@@ -1,3 +1,5 @@
+(in-package #:crbk)
+
 (defun ensure-stream (pathname-or-stream &key direction type
                       &aux (test (ecase direction
                                    (:input #'input-stream-p)

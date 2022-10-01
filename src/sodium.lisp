@@ -1,3 +1,5 @@
+(in-package #:crbk)
+
 (ffi:clines "#include <ecl/ecl.h>"
             "#include <sodium.h>"
             "#include \"sodium-wrapper.h\"")

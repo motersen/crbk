@@ -1,3 +1,5 @@
+(in-package #:crbk)
+
 (define-condition size-exceeds-sequence-length-error (error)
   ((size-expression :initarg :size-expression
                     :reader size-expression)
