@@ -1,0 +1,29 @@
+crbk - simple encryption tool
+and an exercise in ECL's UFFI and ASDF system building
+
+BUILDING
+========
+
+(asdf:make :crbk)
+
+or
+
+ecl --load build.lisp
+
+USE
+===
+
+crbk <operation> -k kfile [-c cfile] [-p pfile]
+
+operations:
+    -e, --encrypt
+    Encrypt data in pfile with a randomly generated key, write encrypted
+    data to cfile and save the key in kfile. If the respective options
+    are not specified, encrypt from standard input to standard output
+    -d, --decrypt
+    Read key from kfile, decrypt data from cfile and write plaintext to
+    pfile. If unspecified, decrypt from standard input to standard output
+
+-k, --key-file kfile
+-c, --ciphertext-file kfile
+-p, --plaintext-file kfile
