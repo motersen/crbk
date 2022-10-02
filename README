@@ -4,9 +4,9 @@ and an exercise in ECL's UFFI and ASDF system building
 BUILDING
 ========
 
-(asdf:make :crbk)
+> (asdf:make :crbk)
 or
-ecl --shell build.lisp
+$ ecl --shell build.lisp
 
 USE
 ===
