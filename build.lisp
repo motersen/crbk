@@ -3,4 +3,3 @@
                 :name "crbk" :type "asd"))
 
 (asdf:make :crbk)
-(ext:quit)

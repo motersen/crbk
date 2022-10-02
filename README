@@ -5,10 +5,8 @@ BUILDING
 ========
 
 (asdf:make :crbk)
-
 or
-
-ecl --load build.lisp
+ecl --shell build.lisp
 
 USE
 ===
