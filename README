@@ -21,7 +21,3 @@ operations:
     -d, --decrypt
     Read key from kfile, decrypt data from cfile and write plaintext to
     pfile. If unspecified, decrypt from standard input to standard output
-
--k, --key-file kfile
--c, --ciphertext-file kfile
--p, --plaintext-file kfile
