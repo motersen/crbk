@@ -4,6 +4,10 @@ and an exercise in ECL's UFFI and ASDF system building
 BUILDING
 ========
 
+dependencies:
+- Embeddable Common Lisp
+- libsodium
+
 > (asdf:make :crbk)
 or
 $ ecl --shell build.lisp
